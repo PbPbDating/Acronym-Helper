@@ -1,0 +1,232 @@
+<html>
+
+
+<script src="acronym_helper_2023.12.21.js"></script>
+
+
+
+<script type="text/javascript">
+
+	// USE THIS FUNCTION TO PRE-POPULATE FIELDS TO SIMPLIFY TESTING
+	function pageLoadInitialization() {
+
+		var docField = document.getElementById("DocField");
+		
+
+		var acronymField = document.getElementById("AcronymField");
+		
+
+        var blacklistField = document.getElementById("BlacklistField");
+        //blacklistField.textContent = "If there are words you don't want to count as acronyms, paste them here";
+
+	}
+
+
+
+	// RUN A TEST
+	function call_button_function() {
+		var docFieldContents = document.getElementById("DocField").value;
+		var acronymFieldContents = document.getElementById("AcronymField").value;
+        var blacklistFieldContents = document.getElementById("BlacklistField").value;
+
+		
+       var outputArray = button_press_function(docFieldContents, acronymFieldContents, blacklistFieldContents);
+	
+		var output = document.getElementById("outputField");
+		output.textContent = outputArray[0];
+
+		var outputAppendix = document.getElementById("acronymsFromAppendixInTextOutput");
+		outputAppendix.textContent = outputArray[1];
+
+	}
+
+</script>
+
+
+
+<body onload="pageLoadInitialization();">
+
+
+	<center><h1 style="color: #E31836; font-family: 'Arial Nova', sans-serif;">Acronym Helper</h1></center>
+
+	
+
+
+	<table>
+		<tr>
+			<td>
+                <center><b style="color: #A31518; font-family: 'Arial Nova Cond', sans-serif;">Acronyms: </b><br></center>
+
+				<center><i style="font-family: 'Arial Nova Cond', sans-serif;">Please paste the acronyms currently in the <br>appendix in the box below </i></center>
+				<br>
+<textarea style="width:400px;height: 100px" id="AcronymField"></textarea>
+			</td>
+
+
+			<td>
+				<center><b style="color: #A31518; font-family: 'Arial Nova Cond', sans-serif;">Document Content: </b><br></center>
+				<center><i style="font-family: 'Arial Nova Cond', sans-serif;">Please paste the entire document (without the <br> acronym appendix) in the box below </i></center>
+				<br>
+				<textarea style="width:400px;height: 100px" id="DocField"></textarea>
+			</td>
+
+			<td>
+				<center><b style="color: #A31518; font-family: 'Arial Nova Cond', sans-serif;">Blacklist Content: </b><br></center>
+				<center><i style="font-family: 'Arial Nova Cond', sans-serif;">If there are words you don't want to count as acronyms, <br> paste them in the box below</i></center><br>
+<textarea style="width:400px;height: 100px" id="BlacklistField"></textarea>
+			</td>
+		</tr>
+
+
+		<tr>
+			<td colspan="2"><center><input id="testButton" type="button" value="Run" onclick="call_button_function();"></center></td>
+				
+			
+		</tr>
+
+
+		<tr>
+			<td>
+				<center><b style="color: #A31518; font-family: 'Arial Nova Cond', sans-serif;">Acronyms from appendix in text:</b></center>
+				<textarea style="width:400px;height: 400px" id="acronymsFromAppendixInTextOutput"></textarea>
+			</td>
+			<td>
+				<center><b style="color: #A31518; font-family: 'Arial Nova Cond', sans-serif;">Acronyms missing from appendix:</b><br>	</center>
+				<textarea style="width:400px;height: 400px" id="outputField"></textarea>
+			</td>
+		
+			<td>
+				<center><b style="color: #A31518; font-family: 'Arial Nova Cond', sans-serif;">Suggested acronyms (copy-paste):</b><br>	</center>
+				<center><button type="button" id="copyTableBtn" onclick="copySuggestionsTable();" style="margin-bottom:6px;">Copy as Table</button></center>
+				<div id="suggestionsContainer" style="width:400px;height: 400px;overflow:auto;border:1px solid #ccc;">
+					<table id="suggestionsTable" style="width:100%;border-collapse:collapse;">
+						<thead>
+							<tr>
+								<th style="border:1px solid #888;padding:6px;background:#f2f2f2;text-align:left;">Acronym</th>
+								<th style="border:1px solid #888;padding:6px;background:#f2f2f2;text-align:left;">Suggested definition</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+				<!-- hidden textarea kept for backward compatibility with scripts that write to #suggestions -->
+				<textarea id="suggestions" style="display:none;width:0;height:0;border:0;padding:0;margin:0;"></textarea>
+			</td>
+		</tr>
+
+		<tr>
+			<td colspan="3">
+				<center><h3 style="color: #A31518; font-family: 'Arial Nova Cond', sans-serif;">Uses and Limitations</h3></center>
+				<p style="font-size: 70%;font-family: 'Arial Nova Cond', sans-serif;">
+				The acronym helper can 1) find acronyms in the text that aren't in the appendix and 2) verify that
+				every acronym in the appendix is used at least once in the text. Copy and paste the acronyms
+				in your appendix into the <b>Acronyms</b> box and your document (without the acronym appendix)
+				into the <b>Document Content</b> box. <br> <br>
+				The program will pick up on every word written in all caps. You can <b>blacklist</b> words that 
+				you don't want the acronym helper to find. The standard blacklist includes Roman numerals. <br><br> This program
+				cannot find acronyms that are not properly capitalized. It will find acronyms that have been deleted in tracked changes. 
+				<br><br> When multiple acronyms are listed with slashes between them,
+				the program will think this is a new and unique acronym because I need to be able to catch missing acronyms like T/C, which have
+				slashes in them naturally. Always check each acronym the program gives you before adding it to an appendix. <br><br> The program removes
+				a lot of non-character symbols, including dashes. If you are looking for an acronym with symbols besides / or &, the program will flag
+				it without the symbols in it. So for instance, if the acronym was MAX-TRAX, the acronym finder will return MAXTRAX.<br><br> Captions and 
+				textboxes within a Word document do not get read! <br><br> Updated December 2025.</p>
+			</td>
+		</tr>
+	</table>
+
+	<script>
+	(function(){
+		var hidden = document.getElementById('suggestions');
+		var last = '';
+		function parseLine(line){
+			line = line.trim();
+			if(!line) return null;
+			var sepIndex = -1;
+			var sepLen = 0;
+			var separators = ['\t',' - ',' — ',' – ',':',' : ',' -','-','—','–'];
+			for(var i=0;i<separators.length;i++){
+				var s=separators[i];
+				var idx = line.indexOf(s);
+				if(idx>-1){ sepIndex = idx; sepLen = s.length; break; }
+			}
+			if(sepIndex>-1){
+				var a=line.substring(0,sepIndex).trim();
+				var d=line.substring(sepIndex+sepLen).trim();
+				return [a,d];
+			}
+			var m = line.match(/^([A-Z0-9\/&-]{2,})\s+(.+)$/);
+			if(m){ return [m[1], m[2]]; }
+			return [line,''];
+		}
+		function update(){
+			if(!hidden) return;
+			var txt = hidden.value || hidden.textContent || '';
+			if(txt===last) return;
+			last = txt;
+			var tbody = document.querySelector('#suggestionsTable tbody');
+			if(!tbody) return;
+			tbody.innerHTML = '';
+			var lines = txt.split(/\r?\n/);
+			for(var i=0;i<lines.length;i++){
+				var parsed = parseLine(lines[i]);
+				if(!parsed) continue;
+				var tr = document.createElement('tr');
+				var td1 = document.createElement('td'); td1.style.border='1px solid #888'; td1.style.padding='6px'; td1.textContent = parsed[0];
+				var td2 = document.createElement('td'); td2.style.border='1px solid #888'; td2.style.padding='6px'; td2.textContent = parsed[1];
+				tr.appendChild(td1); tr.appendChild(td2);
+				tbody.appendChild(tr);
+			}
+		}
+		setInterval(update,400);
+		window.addEventListener('load', update);
+
+		function copySuggestionsTable(){
+			var table = document.getElementById('suggestionsTable');
+			if(!table) return;
+			var rows = table.querySelectorAll('tr');
+			if(rows.length===0) return;
+			var html = '<table border="1" cellspacing="0" cellpadding="4">';
+			for(var i=0;i<rows.length;i++){
+				var cells = rows[i].querySelectorAll('th,td');
+				html += '<tr>';
+				for(var j=0;j<cells.length;j++){
+					var txt = cells[j].textContent.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+					html += '<td>'+txt+'</td>';
+				}
+				html += '</tr>';
+			}
+			html += '</table>';
+			var plain = '';
+			for(var i=0;i<rows.length;i++){
+				var cells = rows[i].querySelectorAll('th,td');
+				var parts = [];
+				for(var j=0;j<cells.length;j++) parts.push(cells[j].textContent);
+				plain += parts.join('\t') + (i<rows.length-1 ? '\n' : '');
+			}
+			if(navigator.clipboard && navigator.clipboard.write){
+				try{
+					var blobHtml = new Blob([html],{type:'text/html'});
+					var blobText = new Blob([plain],{type:'text/plain'});
+					navigator.clipboard.write([new ClipboardItem({'text/html': blobHtml, 'text/plain': blobText})]).then(function(){
+						// copied silently
+					}, function(err){ fallbackCopy(); });
+				}catch(e){ fallbackCopy(); }
+			} else { fallbackCopy(); }
+
+			function fallbackCopy(){
+				var ta = document.createElement('textarea');
+				ta.value = plain;
+				document.body.appendChild(ta);
+				ta.select();
+				try{ document.execCommand('copy'); /* copied silently */ }catch(e){ console.error('Copy failed:', e); }
+				document.body.removeChild(ta);
+			}
+		}
+
+		window.copySuggestionsTable = copySuggestionsTable;
+	})();
+	</script>
+
+	</body>
+	</html>
